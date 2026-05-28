@@ -13,8 +13,8 @@ register_shutdown_function(function() {
     }
 });
 
-require 'db_connect.php';
-require_once 'vendor/autoload.php';
+require __DIR__ . '/db_connect.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;

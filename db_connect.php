@@ -11,7 +11,7 @@ $db_host = "localhost";
 $db_user = "root";
 $db_pass = "";
 $db_name = "coursera_advanced_db";
-$db_port = 3307;
+$db_port = 3037;
 
 /**
  * MYSQLI CONNECT

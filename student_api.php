@@ -13,8 +13,8 @@ register_shutdown_function(function() {
     }
 });
 
-require 'db_connect.php';
-require_once 'vendor/autoload.php';
+require __DIR__ . '/db_connect.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
@@ -82,9 +82,7 @@ if ($pathInfo === '/verify-otp' && $method === 'POST') {
     }
 }
 
-// ==============================================
-// 2. KIỂM TRA ĐĂNG NHẬP CHO CÁC API TRONG TRANG HỌC
-// ==============================================
+// kiểm tra đăng nhập API 
 $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
 if (!$authHeader && function_exists('apache_request_headers')) {
     $authHeader = apache_request_headers()['Authorization'] ?? '';
@@ -158,12 +156,12 @@ if ($pathInfo === '/checkout' && $method === 'POST') {
     $lesson_id = $input['lesson_id'] ?? '';
     if (!$lesson_id) jsonResponse(["message" => "Thiếu mã bài học!"], 400);
     $stmt = $conn->prepare("INSERT IGNORE INTO user_progress (user_id, lesson_id) VALUES (?, ?)");
-    $stmt->bind_param("is
+    $stmt->bind_param("is", $user_id, $lesson_id);
     jsonResponse(["message" => "Đã lưu tiến độ."]);
 
 } elseif ($pathInfo === '/review' && $method === 'POST') {
     $course_id = $input['course_id'] ?? '';
-    $rating = $input['rating'] ?? 0;
+    $rating = $input['rating'] ?? 0;    
     $comment = $input['comment'] ?? '';
     if (!$course_id || !$rating) jsonResponse(["message" => "Đánh giá không hợp lệ."], 400);
     $stmt = $conn->prepare("INSERT INTO course_reviews (user_id, course_id, rating, comment) VALUES (?, ?, ?, ?)");
@@ -269,13 +267,15 @@ if ($pathInfo === '/checkout' && $method === 'POST') {
     
     $stmt = $conn->prepare("SELECT flag FROM lessons WHERE id = ?");
     $stmt->bind_param("s", $lesson_id);
-    $stmt->execute();l_result()->fetch_assoc();
+    $stmt->execute();
+    $lesson = $stmt->get_result()->fetch_assoc();
     if (!$lesson || empty($lesson['flag'])) jsonResponse(["message" => "Bài học này không có cấu hình CTF Flag!"], 400);
     
     if ($flag === $lesson['flag']) {
         $stmt = $conn->prepare("INSERT IGNORE INTO user_progress (user_id, lesson_id) VALUES (?, ?)");
         $stmt->bind_param("is", $user_id, $lesson_id);
-        $stmt->execute();c> "Chính xác hoàn toàn! Tiến trình module đã được tích xanh."]);
+$stmt->execute();
+jsonResponse(["success" => true, "message" => "Chính xác hoàn toàn! Tiến trình module đã được tích xanh."]);
     } else {
         jsonResponse(["success" => false, "message" => "Sai cấu trúc Flag! Chuỗi mật mã băm trích xuất không trùng khớp."]);
     }

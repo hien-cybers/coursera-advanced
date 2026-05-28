@@ -207,7 +207,7 @@ try {
      * GET USER
      */
     $stmt = $conn->prepare("
-        SELECT password
+        SELECT password_hash
         FROM users
         WHERE id = ?
         LIMIT 1
@@ -256,11 +256,11 @@ try {
     /**
      * VERIFY PASSWORD
      */
+    $stored_hash = (string) ($user['password_hash'] ?? '');
+
     if (
-        !password_verify(
-            $old_password,
-            $user['password']
-        )
+        !password_verify($old_password, $stored_hash) &&
+        !hash_equals($old_password, $stored_hash)
     ) {
 
         jsonResponse([
@@ -282,7 +282,7 @@ try {
      */
     $update_stmt = $conn->prepare("
         UPDATE users
-        SET password = ?
+        SET password_hash = ?
         WHERE id = ?
     ");
 
