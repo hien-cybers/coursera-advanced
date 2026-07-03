@@ -471,7 +471,12 @@ HTML;
     $filepath = $upload_dir . $unique_filename;
     if (move_uploaded_file($file['tmp_name'], $filepath)) {
         $base_dir = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/');
-        $file_url = "$base_dir/uploads/$unique_filename";
+        if ($base_dir === '.' || $base_dir === '') {
+            $base_dir = '';
+        }
+        $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+        $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+        $file_url = "{$scheme}://{$host}{$base_dir}/uploads/{$unique_filename}";
         jsonResponse(['message' => 'Upload thành công', 'url' => $file_url]);
     } else {
         jsonResponse(['message' => 'Lưu file thất bại.'], 500);
